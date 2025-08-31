@@ -1,4 +1,4 @@
-/* style.css — playful, kid-friendly layout */
+
 
 :root{
   --bg1: #fdf6e3;
@@ -218,3 +218,4 @@ h1{
   .input-row{ flex-direction:column; }
   #analyzeBtn{ width:100% }
 }
+
