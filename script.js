@@ -1,6 +1,4 @@
-// script.js — Sentiment Explorer with Rule-based + AI Mode (via local proxy) + Quiz + Speech Fix
 
-// ----- Word lists -----
 const positiveWords = [
   "love","like","happy","great","best","amazing","awesome","fantastic","good","nice",
   "cool","fun","wonderful","joy","joyful","smile","excited","glad","yay","delighted"
@@ -15,11 +13,11 @@ const amplifiers = ["very","extremely","super","really","so","totally","complete
 const diminishers = ["slightly","little","a bit","kinda","kind of","somewhat","barely"];
 const negations = ["not","no","never","n't","cannot","can't","dont","don't","don’t","didn't","doesn't","isn't","wasn't","weren't"];
 
-// emoji lists
+
 const emojisPositive = ["😀","😃","😄","😊","😍","😂","😺","👍","🎉"];
 const emojisNegative = ["😢","😞","😠","😡","😭","👎","😿","😤"];
 
-// --- Hugging Face AI Mode (through local proxy) ---
+
 async function analyzeWithAI(text) {
   try {
     const response = await fetch("http://localhost:5000/sentiment", {
@@ -34,7 +32,7 @@ async function analyzeWithAI(text) {
   }
 }
 
-// --- Quiz pool ---
+
 const quizPool = {
   positive: [
     "I love ice cream!","Today is an amazing day.","My dog is so cute.","I am very happy to see you.","We had a fantastic picnic!",
@@ -50,7 +48,7 @@ const quizPool = {
   ]
 };
 
-// DOM elements
+
 const sentenceInput = document.getElementById("sentenceInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const botBubble = document.getElementById("botBubble");
@@ -61,21 +59,21 @@ const explainList = document.getElementById("explainList");
 const quizList = document.getElementById("quizList");
 const speechToggle = document.getElementById("speechToggle");
 
-// tokenize helper (normalize curly quotes)
+
 function tokenize(text) {
   const normalized = text.replace(/[’‘]/g, "'");
   const tokens = normalized.match(/[\w']+/g) || [];
   return tokens.map(t => t.toLowerCase());
 }
 
-// escape HTML
+
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, m => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]
   ));
 }
 
-// main analysis
+
 function analyzeSentiment() {
   const raw = sentenceInput.value.trim();
   if (!raw) {
@@ -85,7 +83,7 @@ function analyzeSentiment() {
 
   const mode = document.querySelector('input[name="mode"]:checked').value;
 
-  // 🔹 AI Mode
+
   if (mode === "ai") {
     botBubble.innerText = "🤖 Thinking with AI model...";
     analyzeWithAI(raw).then(result => {
@@ -98,7 +96,7 @@ function analyzeSentiment() {
         botBubble.innerText = `${emoji} The AI thinks this is ${label} (${score}%)`;
         highlightedDiv.innerHTML = `<span class="token ${label.toLowerCase()}">${escapeHtml(raw)}</span>`;
 
-        // ✅ Fixed speech
+        
         if (speechToggle && speechToggle.checked) {
           try {
             window.speechSynthesis.cancel();
@@ -123,7 +121,7 @@ function analyzeSentiment() {
     return; // stop here
   }
 
-  // 🔹 Rule-based Mode
+  
   const tokens = tokenize(raw);
   let matched = [];
   let score = 0;
@@ -152,7 +150,7 @@ function analyzeSentiment() {
     }
   }
 
-  // label & confidence
+  
   score = Math.round(score*10)/10;
   let label="Neutral", emoji="😐";
   if (score>=1.5){label="Very Positive";emoji="🤩";}
@@ -167,7 +165,7 @@ function analyzeSentiment() {
   sentimentSummary.innerHTML=`${emoji} <strong>${label}</strong> — score: ${score}`;
   botBubble.innerText=`${emoji} ${label} (${score}). Confidence: ${confidence}%`;
 
-  // ✅ Fixed speech
+  
   if (speechToggle && speechToggle.checked) {
     try {
       window.speechSynthesis.cancel();
@@ -183,14 +181,14 @@ function analyzeSentiment() {
     }
   }
 
-  // token highlight
+
   highlightedDiv.innerHTML = tokens.map(t=>{
     const found=matched.find(m=>m.token===t);
     return found?`<span class="token ${found.type}">${escapeHtml(t)}</span>`:`<span class="token neutral">${escapeHtml(t)}</span>`;
   }).join(" ");
 }
 
-// quiz functions
+
 function getRandomQuizSet(){
   return [
     { text: quizPool.positive[Math.floor(Math.random()*quizPool.positive.length)], label:"positive"},
@@ -238,10 +236,11 @@ function renderQuiz(){
   });
 }
 
-// events
+
 analyzeBtn.addEventListener("click", analyzeSentiment);
 sentenceInput.addEventListener("keydown", e=>{if(e.key==="Enter") analyzeSentiment();});
 
-// init
+
 renderQuiz();
 window.analyzeSentiment = analyzeSentiment;
+
